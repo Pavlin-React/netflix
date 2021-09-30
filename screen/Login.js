@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Dimensions, ImageBackground, Text } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import styled from "styled-components";
+import { NavigationContainer } from "@react-navigation/native";
 
 let Container = styled.ScrollView`
   flex: 1;
@@ -71,12 +72,33 @@ let Input = styled.TextInput`
   margin-top: 10px;
 `;
 
-const Login = () => {
+const Login = ({ navigation }) => {
+  let [email, setEmail] = useState("");
+  let [password, setPassword] = useState("");
+  let [loading, setLoading] = useState(false);
 
-  let [email, setEmail] = useState('')
-  let [password, setPassword] = useState('')
-  let [loading, setLoading] = useState(false)
-  
+  let login = () => {
+    setLoading(true);
+
+    if (!email || !password) {
+      alert("All fields are mandatory");
+      setPassword("");
+      setEmail("");
+      setLoading(false);
+      return;
+    }
+    auth.signInWithEmailAndPassword(email, password)
+      .then((authUser) => {
+        navigation.replace("Register");
+        setPassword("");
+        setEmail("");
+        setLoading(false);
+      })
+      .catch((err) => {
+        setLoading(false);
+        alert(err);
+      });
+  };
 
   return (
     <>
@@ -96,18 +118,27 @@ const Login = () => {
                 <Input
                   placeholder="Enter your email"
                   placeholderTextColor="grey"
+                  value={email}
+                  onChangeText={(text) => setEmail(text)}
                 />
                 <Input
                   placeholder="Enter your password"
                   placeholderTextColor="grey"
                   secureTextEntry
+                  value={password}
+                  onChangeText={(text) => setPassword(text)}
                 />
-                <SubmitForm>
-                  <ButtonText>
-                    Sign In
-                  </ButtonText>
+                <SubmitForm
+                  activeOpacity={0.5}
+                  onPress={login}
+                  disabled={loading}
+                >
+                  <ButtonText>{loading ? "Loading..." : "Sign In"}</ButtonText>
                 </SubmitForm>
-                <NewToNetflixTextWrapper activeOpacity={0.5}>
+                <NewToNetflixTextWrapper
+                  activeOpacity={0.5}
+                  onPress={() => navigation.navigate('Register')}
+                >
                   <NewToNetflix>New To Netflix ? Sign Up</NewToNetflix>
                 </NewToNetflixTextWrapper>
               </Form>
